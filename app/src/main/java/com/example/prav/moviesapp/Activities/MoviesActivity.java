@@ -11,14 +11,17 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.example.prav.moviesapp.Adapters.OnItemClickListener;
 import com.example.prav.moviesapp.Model.Movie;
 import com.example.prav.moviesapp.Adapters.MovieAdapter;
 import com.example.prav.moviesapp.R;
 import com.example.prav.moviesapp.ViewModels.MoviesActivityModel;
+import com.google.gson.Gson;
 
 import java.util.List;
 
-public class MoviesActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class MoviesActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener{
 
     private RecyclerView moviesView;
     private MoviesActivityModel moviesActivityModel;
@@ -47,7 +50,12 @@ public class MoviesActivity extends AppCompatActivity implements SharedPreferenc
      */
     private void updateMovieRecycler(List<Movie> movies) {
         moviesView.setAdapter(null);
-        MovieAdapter movieAdapter = new MovieAdapter(movies);
+        MovieAdapter movieAdapter = new MovieAdapter(movies, movie ->  {
+                Intent intent = new Intent(getApplicationContext(), MovieDetailActivity.class);
+                Gson gson = new Gson();
+                intent.putExtra("movie_selected", gson.toJson(movie));
+                startActivity(intent);
+        });
         moviesView.setAdapter(movieAdapter);
     }
 
@@ -69,7 +77,6 @@ public class MoviesActivity extends AppCompatActivity implements SharedPreferenc
     }
 
     /**
-     * Setup and register the shared preferences
      */
     private void setupPreferences() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -91,5 +98,4 @@ public class MoviesActivity extends AppCompatActivity implements SharedPreferenc
         super.onDestroy();
         PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
     }
-
 }

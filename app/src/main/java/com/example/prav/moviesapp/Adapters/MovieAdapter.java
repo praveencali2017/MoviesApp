@@ -2,6 +2,7 @@ package com.example.prav.moviesapp.Adapters;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.v7.view.menu.MenuView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,9 +21,12 @@ import java.util.List;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieHolder> {
     private List<Movie> movies;
+    private OnItemClickListener onItemClickListener;
 
-    public MovieAdapter(List<Movie> movies) {
+    public MovieAdapter(List<Movie> movies, OnItemClickListener onItemClickListener)
+    {
         this.movies = movies;
+        this.onItemClickListener = onItemClickListener;
     }
 
     @NonNull
@@ -41,12 +45,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieHolder>
                 .load(ServiceConfig.IMG_BASEURL + movie.getMovieImgUrl())
                 .into(holder.movieImg);
         holder.movieName.setText(movie.getMovieName());
-        holder.itemView.setOnClickListener(view -> {
-            Intent intent = new Intent(view.getContext(), MovieDetailActivity.class);
-            Gson gson = new Gson();
-            intent.putExtra("movie_selected", gson.toJson(movies.get(position)));
-            view.getContext().startActivity(intent);
-        });
+        holder.bind(holder.itemView, this.onItemClickListener,position);
+
     }
 
     @Override
@@ -62,6 +62,12 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieHolder>
             super(itemView);
             this.movieImg = itemView.findViewById(R.id.movie_img);
             this.movieName = itemView.findViewById(R.id.movie_txt);
+        }
+        public void bind(View itemView, OnItemClickListener onItemClickListener, int position){
+            itemView.setOnClickListener(view -> {
+                onItemClickListener.onItemClick(movies.get(position));
+            });
+
         }
 
     }
