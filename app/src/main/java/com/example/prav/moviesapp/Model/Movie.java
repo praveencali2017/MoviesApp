@@ -3,6 +3,8 @@ package com.example.prav.moviesapp.Model;
 import com.google.gson.annotations.SerializedName;
 
 public class Movie {
+    @SerializedName("id")
+    private String movieId;
     @SerializedName("title")
     private String movieName;
     @SerializedName("poster_path")
@@ -15,6 +17,25 @@ public class Movie {
     private String userRatings;
     @SerializedName("release_date")
     private String releaseDate;
+
+    public String getVideoClip() {
+        return videoClip;
+    }
+
+    public void setVideoClip(String videoClip) {
+        this.videoClip = videoClip;
+    }
+
+    @SerializedName("key")
+    private String videoClip;
+
+    public String getMovieId() {
+        return movieId;
+    }
+
+    public void setMovieId(String movieId) {
+        this.movieId = movieId;
+    }
 
     public String getMovieName() {
         return movieName;

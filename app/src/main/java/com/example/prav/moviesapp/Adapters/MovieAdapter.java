@@ -23,8 +23,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieHolder>
     private List<Movie> movies;
     private OnItemClickListener onItemClickListener;
 
-    public MovieAdapter(List<Movie> movies, OnItemClickListener onItemClickListener)
-    {
+    public MovieAdapter(List<Movie> movies, OnItemClickListener onItemClickListener) {
         this.movies = movies;
         this.onItemClickListener = onItemClickListener;
     }
@@ -44,8 +43,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieHolder>
         Picasso.with(holder.itemView.getContext())
                 .load(ServiceConfig.IMG_BASEURL + movie.getMovieImgUrl())
                 .into(holder.movieImg);
-        holder.movieName.setText(movie.getMovieName());
-        holder.bind(holder.itemView, this.onItemClickListener,position);
+        holder.bind(holder.itemView, this.onItemClickListener, position);
 
     }
 
@@ -56,14 +54,13 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieHolder>
 
     public class MovieHolder extends RecyclerView.ViewHolder {
         private ImageView movieImg;
-        private TextView movieName;
 
         private MovieHolder(View itemView) {
             super(itemView);
             this.movieImg = itemView.findViewById(R.id.movie_img);
-            this.movieName = itemView.findViewById(R.id.movie_txt);
         }
-        public void bind(View itemView, OnItemClickListener onItemClickListener, int position){
+
+        public void bind(View itemView, OnItemClickListener onItemClickListener, int position) {
             itemView.setOnClickListener(view -> {
                 onItemClickListener.onItemClick(movies.get(position));
             });

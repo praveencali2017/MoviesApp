@@ -3,6 +3,8 @@ package com.example.prav.moviesapp.Activities;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.preference.PreferenceManager;
@@ -11,6 +13,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.OrientationEventListener;
 
 import com.example.prav.moviesapp.Adapters.OnItemClickListener;
 import com.example.prav.moviesapp.Model.Movie;
@@ -21,7 +24,7 @@ import com.google.gson.Gson;
 
 import java.util.List;
 
-public class MoviesActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener{
+public class MoviesActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener, OnItemClickListener {
 
     private RecyclerView moviesView;
     private MoviesActivityModel moviesActivityModel;
@@ -31,8 +34,7 @@ public class MoviesActivity extends AppCompatActivity implements SharedPreferenc
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movies);
         moviesView = findViewById(R.id.movies_recycler);
-        moviesView.setLayoutManager(new GridLayoutManager(this, 3));
-        moviesView.setItemAnimator(new DefaultItemAnimator());
+        moviesView.setLayoutManager(new GridLayoutManager(this, 2));
         moviesView.setItemAnimator(new DefaultItemAnimator());
         moviesActivityModel = ViewModelProviders.of(this).get(MoviesActivityModel.class);
         moviesActivityModel.movies.observe(this, (movies) -> {
@@ -50,12 +52,7 @@ public class MoviesActivity extends AppCompatActivity implements SharedPreferenc
      */
     private void updateMovieRecycler(List<Movie> movies) {
         moviesView.setAdapter(null);
-        MovieAdapter movieAdapter = new MovieAdapter(movies, movie ->  {
-                Intent intent = new Intent(getApplicationContext(), MovieDetailActivity.class);
-                Gson gson = new Gson();
-                intent.putExtra("movie_selected", gson.toJson(movie));
-                startActivity(intent);
-        });
+        MovieAdapter movieAdapter = new MovieAdapter(movies, this);
         moviesView.setAdapter(movieAdapter);
     }
 
@@ -81,14 +78,24 @@ public class MoviesActivity extends AppCompatActivity implements SharedPreferenc
     private void setupPreferences() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         String val = sharedPreferences.getString(getString(R.string.pref_sort_key), "pop");
+        setSortTitle(val);
         moviesActivityModel.loadMovies(val);
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+    }
+
+    public void setSortTitle(String key) {
+        if (key.equals("pop")) {
+            setTitle(getString(R.string.pref_sort_popular));
+        } else {
+            setTitle(getString(R.string.pref_sort_toprated));
+        }
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
         if (s.equals(getString(R.string.pref_sort_key))) {
             String val = sharedPreferences.getString(getString(R.string.pref_sort_key), "pop");
+            setSortTitle(val);
             moviesActivityModel.loadMovies(val);
         }
     }
@@ -97,5 +104,18 @@ public class MoviesActivity extends AppCompatActivity implements SharedPreferenc
     protected void onDestroy() {
         super.onDestroy();
         PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onItemClick(Movie movie) {
+        Intent intent = new Intent(getApplicationContext(), MovieDetailActivity.class);
+        Gson gson = new Gson();
+        intent.putExtra("movie_selected", gson.toJson(movie));
+        startActivity(intent);
+    }
+
+    @Override
+    public void onItemClick(String url) {
+
     }
 }

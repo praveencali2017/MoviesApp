@@ -21,12 +21,18 @@
             </intent-filter>
         </activity>
         <activity android:name=".Activities.SettingsActivity">
-            android:parentActivityName=".MoviesActivity">
+            android:parentActivityName=".Activities.MoviesActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".Activities.MoviesActivity" />
         </activity>
-        <activity android:name=".Activities.MovieDetailActivity"/>
+        <activity
+            android:name=".Activities.MovieDetailActivity"
+            android:parentActivityName=".Activities.MoviesActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".Activities.MoviesActivity" />
+        </activity>
     </application>
 
 </manifest>
