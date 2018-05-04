@@ -60,9 +60,12 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieHolder>
             this.movieImg = itemView.findViewById(R.id.movie_img);
         }
 
-        public void bind(View itemView, OnItemClickListener onItemClickListener, int position) {
-            itemView.setOnClickListener(view -> {
-                onItemClickListener.onItemClick(movies.get(position));
+        public void bind(View itemView, final OnItemClickListener onItemClickListener, final int position) {
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onItemClickListener.onItemClick(movies.get(position));
+                }
             });
 
         }

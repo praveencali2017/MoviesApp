@@ -1,8 +1,12 @@
 package com.example.prav.moviesapp.Activities;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
+import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -23,6 +27,7 @@ import com.example.prav.moviesapp.R;
 import com.example.prav.moviesapp.Services.MovieService;
 import com.example.prav.moviesapp.Services.RestCaller;
 import com.example.prav.moviesapp.Services.ServiceConfig;
+import com.example.prav.moviesapp.ViewModels.MovieDetailActivityModel;
 import com.example.prav.moviesapp.databinding.ActivityMovieDetailBinding;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -35,20 +40,50 @@ import java.util.List;
 /**
  * Activity which loads selected movie from the MoviesActivity
  */
-public class MovieDetailActivity extends AppCompatActivity implements ResponseCallback, OnItemClickListener {
+public class MovieDetailActivity extends AppCompatActivity implements OnItemClickListener {
     private ActivityMovieDetailBinding activityMovieDetailBinding;
+    private MovieDetailActivityModel movieDetailActivityModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         activityMovieDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_movie_detail);
         setTitle(getString(R.string.movie_detail));
-        String movieStr = getIntent().getStringExtra("movie_selected");
-        Gson gson = new Gson();
-        Movie movie = gson.fromJson(movieStr, Movie.class);
-        if (movie != null) {
-            RestCaller.loadClips(movie.getMovieId(), this, true);
-            updateView(movie);
+        movieDetailActivityModel = ViewModelProviders.of(this).get(MovieDetailActivityModel.class);
+        movieDetailActivityModel.isFav.setValue(false);
+        movieDetailActivityModel.loadClipsAndReview(getIntent().getStringExtra("movie_selected"));
+        movieDetailActivityModel.movie.observe(this, new Observer<Movie>() {
+            @Override
+            public void onChanged(@Nullable Movie movie) {
+                updateView(movie);
+            }
+        });
+        movieDetailActivityModel.isFav.observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(@Nullable Boolean aBoolean) {
+                setFavImg(aBoolean);
+            }
+        });
+        onMovieClipsChange();
+        onChangeInReviews();
+        activityMovieDetailBinding.favContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!movieDetailActivityModel.isFav.getValue()) {
+                    movieDetailActivityModel.insertFav(movieDetailActivityModel.movie.getValue(), getApplicationContext());
+                } else {
+                    movieDetailActivityModel.delFav(movieDetailActivityModel.movie.getValue().getMovieId(), getApplicationContext());
+                }
+            }
+        });
+        movieDetailActivityModel.getFav(getApplicationContext(), movieDetailActivityModel.movie.getValue().getMovieId());
+    }
+
+    private void setFavImg(boolean val) {
+        if (val) {
+            activityMovieDetailBinding.imgFav.setImageResource(R.mipmap.ic_favorite);
+        } else {
+            activityMovieDetailBinding.imgFav.setImageResource(R.mipmap.ic_favorite_border);
         }
     }
 
@@ -73,30 +108,43 @@ public class MovieDetailActivity extends AppCompatActivity implements ResponseCa
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onResponseMovieClips(List<Movie> jsonResponse) {
-        List<String> urls = new ArrayList<>();
-        for (Movie movie : jsonResponse) {
-            urls.add(ServiceConfig.youtubeUrl + movie.getVideoClip());
-        }
-        activityMovieDetailBinding.trailersView.setLayoutManager(new LinearLayoutManager(this));
-        TrailerAdapter trailerAdapter = new TrailerAdapter(urls, this);
-        activityMovieDetailBinding.trailersView.setAdapter(trailerAdapter);
+    private void onMovieClipsChange() {
+        movieDetailActivityModel.clipsUrl.observe(this, new Observer<List<String>>() {
+            @Override
+            public void onChanged(@Nullable List<String> strings) {
+                activityMovieDetailBinding.trailersView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+                TrailerAdapter trailerAdapter = new TrailerAdapter(strings, MovieDetailActivity.this);
+                activityMovieDetailBinding.trailersView.setAdapter(trailerAdapter);
+            }
+        });
     }
 
-    @Override
-    public void onResponseReviews(JsonArray jsonArray) {
-        if (jsonArray.size() > 0) {
-            activityMovieDetailBinding.reviewsList.setLayoutManager(new LinearLayoutManager(this));
-            ReviewAdapter reviewAdapter = new ReviewAdapter(jsonArray);
-            activityMovieDetailBinding.reviewsList.setAdapter(reviewAdapter);
+    private void onChangeInReviews() {
+        movieDetailActivityModel.reviews.observe(this, new Observer<JsonArray>() {
+            @Override
+            public void onChanged(@Nullable JsonArray jsonArray) {
+                if (jsonArray.size() > 0) {
+                    activityMovieDetailBinding.reviewsList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+                    ReviewAdapter reviewAdapter = new ReviewAdapter(jsonArray);
+                    activityMovieDetailBinding.reviewsList.setAdapter(reviewAdapter);
+                    hideNoReviews(true);
+                } else {
+                    hideNoReviews(false);
+                }
+
+            }
+        });
+
+    }
+
+    private void hideNoReviews(boolean val) {
+        if (val) {
             activityMovieDetailBinding.noreviewTxt.setVisibility(View.INVISIBLE);
             activityMovieDetailBinding.reviewsList.setVisibility(View.VISIBLE);
         } else {
             activityMovieDetailBinding.reviewsList.setVisibility(View.INVISIBLE);
             activityMovieDetailBinding.noreviewTxt.setVisibility(View.VISIBLE);
         }
-
     }
 
     @Override
@@ -108,10 +156,6 @@ public class MovieDetailActivity extends AppCompatActivity implements ResponseCa
     public void onItemClick(String url) {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         startActivity(intent);
-    }
-
-    public void loadReviews(String movieID) {
-
     }
 
 }

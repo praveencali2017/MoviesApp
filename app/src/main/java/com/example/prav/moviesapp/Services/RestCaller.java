@@ -27,8 +27,8 @@ public class RestCaller {
             .build();
     public static Call<JSONResponse> res;
 
-    public static void loadClips(String movieKey, ResponseCallback responseCallback, boolean loadReviews) {
-        MovieService service = RETROFIT.create(MovieService.class);
+    public static void loadClips(final String movieKey, final ResponseCallback responseCallback,final boolean loadReviews) {
+        final MovieService service = RETROFIT.create(MovieService.class);
         res = service.getMovieClips(movieKey, ServiceConfig.API_KEY, ServiceConfig.LANG);
         res.enqueue(new Callback<JSONResponse>() {
             @Override
@@ -62,7 +62,7 @@ public class RestCaller {
 
     }
 
-    public static void loadMovies(String type, IMoviesCallback iMoviesCallback) {
+    public static void loadMovies(String type, final IMoviesCallback iMoviesCallback) {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(ServiceConfig.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())

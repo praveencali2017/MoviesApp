@@ -51,9 +51,12 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
             trailerNumber = itemView.findViewById(R.id.trailer_number);
         }
 
-        public void bind(String url, OnItemClickListener onItemClickListener) {
-            itemView.setOnClickListener(view -> {
-                onItemClickListener.onItemClick(url);
+        public void bind(final String url, final OnItemClickListener onItemClickListener) {
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onItemClickListener.onItemClick(url);
+                }
             });
         }
     }

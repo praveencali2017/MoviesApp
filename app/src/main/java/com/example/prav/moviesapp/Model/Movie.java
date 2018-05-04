@@ -1,5 +1,7 @@
 package com.example.prav.moviesapp.Model;
 
+import android.arch.persistence.room.Entity;
+
 import com.google.gson.annotations.SerializedName;
 
 public class Movie {

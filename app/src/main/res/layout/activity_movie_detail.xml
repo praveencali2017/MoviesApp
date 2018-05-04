@@ -179,6 +179,34 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/trailers_view" />
 
+            <LinearLayout
+                android:id="@+id/fav_container"
+                android:layout_width="0dp"
+                android:background="@android:color/white"
+                android:elevation="2dp"
+                android:padding="3dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="24dp"
+                android:orientation="horizontal"
+                app:layout_constraintStart_toStartOf="@+id/release_label"
+                app:layout_constraintTop_toBottomOf="@+id/release_label">
+
+                <ImageView
+                    android:id="@+id/img_fav"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.3"
+                    app:srcCompat="@mipmap/ic_favorite_border" />
+
+                <TextView
+                    android:id="@+id/textView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.7"
+                    android:text="Add to Favorites" />
+            </LinearLayout>
+
         </android.support.constraint.ConstraintLayout>
     </ScrollView>
 </layout>
